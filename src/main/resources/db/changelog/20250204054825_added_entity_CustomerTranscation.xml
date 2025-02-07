@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Added the entity CustomerTranscation.
+    -->
+    <changeSet id="20250204054825-1" author="Geeta">
+        <createTable tableName="customer_transaction">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="amount_spent" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="transaction_date" type="date">
+                <constraints nullable="true" />
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="20250204054825-2" author="Geeta">
+        <insert tableName="customer_transaction">
+            <column name="id" value="1"/>
+            <column name="customer_id" value="1"/>
+            <column name="amount_spent" value="120"/>
+            <column name="transaction_date" valueDate="2025-01-15"/>
+        </insert>
+
+        <insert tableName="customer_transaction">
+            <column name="id" value="2"/>
+            <column name="customer_id" value="1"/>
+            <column name="amount_spent" value="75"/>
+            <column name="transaction_date" valueDate="2025-01-20"/>
+        </insert>
+
+        <insert tableName="customer_transaction">
+            <column name="id" value="3"/>
+            <column name="customer_id" value="2"/>
+            <column name="amount_spent" value="200"/>
+            <column name="transaction_date" valueDate="2025-02-01"/>
+        </insert>
+
+        <insert tableName="customer_transaction">
+            <column name="id" value="4"/>
+            <column name="customer_id" value="3"/>
+            <column name="amount_spent" value="99"/>
+            <column name="transaction_date" valueDate="2025-02-02"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
