@@ -5,8 +5,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +19,7 @@ import com.customer.transacation.domain.CustomerTransaction;
 import com.customer.transacation.dto.RewardResponseDTO;
 import com.customer.transacation.repository.CustomerTranscationRepository;
 import com.customer.transacation.service.impl.CustomerTranscationServiceImpl;
+import com.customer.transacation.service.impl.ValidationServiceImpl;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -31,7 +32,9 @@ public class CustomerTranscationServiceImplTest {
     private CustomerTranscationServiceImpl customerTranscationService;
 
     private List<CustomerTransaction> mockTransactions;
-
+ 
+    @Mock
+    private ValidationServiceImpl validationServiceImpl;
 
     @BeforeEach
     void setUp() {
@@ -72,4 +75,18 @@ public class CustomerTranscationServiceImplTest {
         assertEquals(0, response.getMonthlyPoints().getOrDefault("MARCH", 0));
         assertEquals(120, response.getTotalPoints());
     }
+    
+    @Test
+    void testGetMonthlyRewardPoints() {
+        when(customerTranscationRepository.getTransactions()).thenReturn(mockTransactions);
+
+        Map<String, Integer> response = customerTranscationService.getMonthlyRewardPoints(1L);
+
+        assertEquals(90, response.get("JANUARY"));
+        assertEquals(30, response.get("FEBRUARY"));
+        assertEquals(0, response.getOrDefault("MARCH", 0));
+    }
+    
+   
+
 }
