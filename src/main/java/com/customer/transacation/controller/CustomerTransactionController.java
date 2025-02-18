@@ -1,4 +1,4 @@
-package com.customer.transacation.web.rest;
+package com.customer.transacation.controller;
 
 import java.util.Map;
 
@@ -54,5 +54,12 @@ public class CustomerTransactionController {
 	public Map<String, Integer> getMonthlyRewardPoints(@PathVariable Long customerId) {
 		log.info("Received request to fetch monthly reward points for customerId: {}", customerId);
 		return customerTranscationService.getMonthlyRewardPoints(customerId);
+	}
+	
+	@GetMapping("/{customerId}/month/{month}")
+	public ResponseEntity<Map<String, Object>> getRewardPointsForMonth(@PathVariable Long customerId, @PathVariable String month) {
+	    log.info("Received request to fetch reward points for customerId: {} for month: {}", customerId, month);
+	    Map<String, Object> monthlyData = customerTranscationService.getRewardPointsForMonth(customerId, month);
+	    return ResponseEntity.ok(monthlyData);
 	}
 }

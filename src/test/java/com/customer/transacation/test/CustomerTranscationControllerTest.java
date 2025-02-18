@@ -16,9 +16,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.customer.transacation.controller.CustomerTransactionController;
 import com.customer.transacation.dto.RewardResponseDTO;
 import com.customer.transacation.service.CustomerTransactionService;
-import com.customer.transacation.web.rest.CustomerTransactionController;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(CustomerTransactionController.class)
@@ -38,7 +38,6 @@ public class CustomerTranscationControllerTest {
 
         RewardResponseDTO rewardResponseDTO = new RewardResponseDTO();
         rewardResponseDTO.setCustomerId(1L);
-        rewardResponseDTO.setMonthlyPoints(monthlyPoints);
         rewardResponseDTO.setTotalPoints(120);
 
         when(customerTranscationService.calculateRewardPoints(1L)).thenReturn(rewardResponseDTO);
@@ -55,6 +54,20 @@ public class CustomerTranscationControllerTest {
         when(customerTranscationService.getMonthlyRewardPoints(1L)).thenReturn(monthlyPoints);
 
         mockMvc.perform(get("/api/customer-transactions/{customerId}/monthly", 1))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.JANUARY").value(90))
+            .andExpect(jsonPath("$.FEBRUARY").value(30));
+    }
+    
+    @Test
+    void testRewardPointsForMonth() throws Exception {
+        Map<String, Object> monthlyPoints = new HashMap<>();
+        monthlyPoints.put("JANUARY", 90);
+        monthlyPoints.put("FEBRUARY", 30);
+
+        when(customerTranscationService.getRewardPointsForMonth(1L,"JANUARY")).thenReturn(monthlyPoints);
+
+        mockMvc.perform(get("/api/customer-transactions/{customerId}/month/{month}", 1, "JANUARY"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.JANUARY").value(90))
             .andExpect(jsonPath("$.FEBRUARY").value(30));

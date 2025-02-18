@@ -1,6 +1,7 @@
 package com.customer.transacation.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -15,26 +16,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.customer.transacation.domain.CustomerTransaction;
 import com.customer.transacation.dto.RewardResponseDTO;
-import com.customer.transacation.repository.CustomerTranscationRepository;
-import com.customer.transacation.service.impl.CustomerTranscationServiceImpl;
-import com.customer.transacation.service.impl.ValidationServiceImpl;
-
+import com.customer.transacation.dto.TransactionDetails;
+import com.customer.transacation.entity.CustomerTransaction;
+import com.customer.transacation.repository.CustomerTransactionRepository;
+import com.customer.transacation.service.impl.CustomerTransactionServiceImpl;
+import com.customer.transaction.errors.CustomerTransactionException;
 
 @ExtendWith(MockitoExtension.class)
 public class CustomerTranscationServiceImplTest {
 
     @Mock
-    private CustomerTranscationRepository customerTranscationRepository;
+    private CustomerTransactionRepository customerTranscationRepository;
 
     @InjectMocks
-    private CustomerTranscationServiceImpl customerTranscationService;
+    private CustomerTransactionServiceImpl customerTranscationService;
 
     private List<CustomerTransaction> mockTransactions;
- 
-    @Mock
-    private ValidationServiceImpl validationServiceImpl;
 
     @BeforeEach
     void setUp() {
@@ -61,21 +59,20 @@ public class CustomerTranscationServiceImplTest {
         mockTransactions.add(transaction1);
         mockTransactions.add(transaction2);
         mockTransactions.add(transaction3);
+
+        when(customerTranscationRepository.existsById(1L)).thenReturn(true);
     }
+
     @Test
     void testCalculateRewardPoints() {
-
         when(customerTranscationRepository.getTransactions()).thenReturn(mockTransactions);
 
         RewardResponseDTO response = customerTranscationService.calculateRewardPoints(1L);
 
         assertEquals(1L, response.getCustomerId());
-        assertEquals(90, response.getMonthlyPoints().get("JANUARY"));
-        assertEquals(30, response.getMonthlyPoints().get("FEBRUARY"));
-        assertEquals(0, response.getMonthlyPoints().getOrDefault("MARCH", 0));
         assertEquals(120, response.getTotalPoints());
     }
-    
+
     @Test
     void testGetMonthlyRewardPoints() {
         when(customerTranscationRepository.getTransactions()).thenReturn(mockTransactions);
@@ -86,7 +83,72 @@ public class CustomerTranscationServiceImplTest {
         assertEquals(30, response.get("FEBRUARY"));
         assertEquals(0, response.getOrDefault("MARCH", 0));
     }
-    
-   
+    @Test
+    void testGetRewardPointsForMonth_ValidCustomerAndMonth() {
+        String targetMonth = "JANUARY";
+
+        when(customerTranscationRepository.existsById(1L)).thenReturn(true); // Valid customer
+        when(customerTranscationRepository.getTransactions()).thenReturn(mockTransactions);
+
+        Map<String, Object> rewardPointsForMonth = customerTranscationService.getRewardPointsForMonth(1L, targetMonth);
+
+        assertEquals(targetMonth, rewardPointsForMonth.get("month"));
+        assertEquals(90, rewardPointsForMonth.get("totalPoints")); 
+        List<TransactionDetails> transactions = (List<TransactionDetails>) rewardPointsForMonth.get("transactions");
+        assertEquals(1, transactions.size());
+        assertEquals(120, transactions.get(0).getAmountSpent().longValue());
+        assertEquals(90, transactions.get(0).getRewardPoints());
+    }
+
+    @Test
+    void testGetRewardPointsForMonth_NoTransactionsForMonth() {
+        String targetMonth = "APRIL";
+
+        when(customerTranscationRepository.existsById(1L)).thenReturn(true); // Valid customer
+        when(customerTranscationRepository.getTransactions()).thenReturn(mockTransactions);
+
+        CustomerTransactionException exception = assertThrows(
+            CustomerTransactionException.class,
+            () -> customerTranscationService.getRewardPointsForMonth(1L, targetMonth)
+        );
+
+        assertEquals("No transactions found for the specified month.", exception.getMessage());
+    }
+
+    @Test
+    void testGetRewardPointsForMonth_InvalidCustomer() {
+        String targetMonth = "JANUARY";
+
+        when(customerTranscationRepository.existsById(1L)).thenReturn(false); // Invalid customer
+
+        CustomerTransactionException exception = assertThrows(
+            CustomerTransactionException.class,
+            () -> customerTranscationService.getRewardPointsForMonth(1L, targetMonth)
+        );
+
+        assertEquals("CustomerId not found: 1", exception.getMessage());
+    }
+    @Test
+    void testGetRewardPointsForMonth_InvalidTransactionAmount() {
+        String targetMonth = "JANUARY";
+
+        when(customerTranscationRepository.existsById(1L)).thenReturn(true);
+        List<CustomerTransaction> mockTransactions = new ArrayList<>();
+        CustomerTransaction invalidTransaction = new CustomerTransaction();
+        invalidTransaction.setId(1L);
+        invalidTransaction.setCustomerId(1L);
+        invalidTransaction.setTransactionDate(LocalDate.of(2025, 1, 10));
+        invalidTransaction.setAmountSpent(-50L); // Invalid amount
+        mockTransactions.add(invalidTransaction);
+        when(customerTranscationRepository.getTransactions()).thenReturn(mockTransactions);
+
+        CustomerTransactionException exception = assertThrows(
+            CustomerTransactionException.class,
+            () -> customerTranscationService.getRewardPointsForMonth(1L, targetMonth)
+        );
+
+        assertEquals("Invalid transaction amount", exception.getMessage());
+    }
+
 
 }

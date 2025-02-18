@@ -12,9 +12,111 @@ The application calculates:
 1. Monthly reward points per customer.
 2. Total reward points for each customer over a 3-month period.
 
+
 ## API Endpoints
-- `GET /api/customer-transactions/{customerId}/monthly`: Get monthly reward points for a customer.
-- `GET /api/customer-transactions/{customerId}`: Get total reward points for a customer
+
+** 1. Get Total Reward Points for a Customer**
+
+**API: ** `GET /api/customer-transactions/{customerId}`
+
+**Sample Request:** GET /api/customer-transactions/1
+
+**Sample Response (Success):**
+
+```json
+{
+    "customerId": 1,
+    "totalPoints": 340,
+    "monthlyRewardDetails": [
+        {
+            "month": "JANUARY",
+            "rewardPoints": 90,
+            "transactions": [
+                {
+                    "transactionId": 2,
+                    "transactionDate": "2025-01-20",
+                    "amountSpent": 110,
+                    "rewardPoints": 70
+                },
+                {
+                    "transactionId": 1,
+                    "transactionDate": "2025-01-25",
+                    "amountSpent": 70,
+                    "rewardPoints": 20
+                }
+            ]
+        },
+        {
+            "month": "FEBRUARY",
+            "rewardPoints": 250,
+            "transactions": [
+                {
+                    "transactionId": 3,
+                    "transactionDate": "2025-02-01",
+                    "amountSpent": 200,
+                    "rewardPoints": 250
+                }
+            ]
+        }
+    ]
+}
+```
+
+
+** Sample Response (Exception - CustomerId Not Found):**
+
+```json
+{
+    "timestamp": "2025-02-17T22:50:57.9624956",
+    "message": "CustomerId not found: 4",
+    "details": "ERROR_VALIDATION"
+}
+```
+
+** 2. Get Monthly Reward Points for a Customer**
+
+**API: ** `GET /api/customer-transactions/{customerId}/monthly`
+
+**Sample Request: **
+**API: ** GET /api/customer-transactions/1/monthly
+
+**Sample Response (Success):**
+
+```json
+{
+  "JANUARY": 90,
+  "FEBRUARY": 120
+}
+```
+
+** 3. Get Reward Points for a Specific Month**
+
+**API: ** `GET /api/customer-transactions/{customerId}/month/{month}`
+
+**Sample Request: ** GET /api/customer-transactions/101/month/JANUARY
+
+**Sample Response (Success):**
+
+```json
+{
+    "month": "JANUARY",
+    "totalPoints": 90,
+    "transactions": [
+        {
+            "transactionId": 2,
+            "transactionDate": "2025-01-20",
+            "amountSpent": 110,
+            "rewardPoints": 70
+        },
+        {
+            "transactionId": 1,
+            "transactionDate": "2025-01-25",
+            "amountSpent": 70,
+            "rewardPoints": 20
+        }
+    ]
+}
+```
 
 ## Technologies
 - Spring Boot 3

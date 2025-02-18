@@ -1,4 +1,4 @@
-package com.customer.transacation.web.rest;
+package com.customer.transacation.controller;
 
 import java.time.LocalDateTime;
 
@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.customer.transacation.domain.ErrorResponse;
+import com.customer.transacation.entity.ErrorResponse;
 import com.customer.transaction.errors.CustomerTransactionException;
 
 @RestControllerAdvice

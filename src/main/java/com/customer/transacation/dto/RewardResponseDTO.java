@@ -10,14 +10,10 @@ import lombok.Generated;
 @Data
 @Generated
 public class RewardResponseDTO {
-	   
-	private Long customerId;
-   
-    private Map<String, Integer> monthlyPoints;
-  
-    private Integer totalPoints;
     
-    private List<TransactionDetails> transactions;
+    private Long customerId;
+    private Integer totalPoints;
+    private List<MonthlyRewardDetails> monthlyRewardDetails;
 
     
 }

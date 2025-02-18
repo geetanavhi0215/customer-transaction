@@ -6,12 +6,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.customer.transacation.domain.CustomerTransaction;
+import com.customer.transacation.entity.CustomerTransaction;
+
 import org.springframework.data.repository.query.Param;
 
 @SuppressWarnings("unused")
 @Repository
-public interface CustomerTranscationRepository extends JpaRepository<CustomerTransaction, Long> {
+public interface CustomerTransactionRepository extends JpaRepository<CustomerTransaction, Long> {
 
 	@Query("SELECT t FROM CustomerTransaction t")
 	Collection<CustomerTransaction> getTransactions();

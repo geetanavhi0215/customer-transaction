@@ -1,4 +1,4 @@
-package com.customer.transacation.domain;
+package com.customer.transacation.entity;
 
 import java.time.LocalDateTime;
 
