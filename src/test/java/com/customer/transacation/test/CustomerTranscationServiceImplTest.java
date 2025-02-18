@@ -60,11 +60,11 @@ public class CustomerTranscationServiceImplTest {
         mockTransactions.add(transaction2);
         mockTransactions.add(transaction3);
 
-        when(customerTranscationRepository.existsById(1L)).thenReturn(true);
     }
 
     @Test
     void testCalculateRewardPoints() {
+        when(customerTranscationRepository.existsById(1L)).thenReturn(true);
         when(customerTranscationRepository.getTransactions()).thenReturn(mockTransactions);
 
         RewardResponseDTO response = customerTranscationService.calculateRewardPoints(1L);
@@ -75,6 +75,7 @@ public class CustomerTranscationServiceImplTest {
 
     @Test
     void testGetMonthlyRewardPoints() {
+        when(customerTranscationRepository.existsById(1L)).thenReturn(true);
         when(customerTranscationRepository.getTransactions()).thenReturn(mockTransactions);
 
         Map<String, Integer> response = customerTranscationService.getMonthlyRewardPoints(1L);
@@ -150,5 +151,29 @@ public class CustomerTranscationServiceImplTest {
         assertEquals("Invalid transaction amount", exception.getMessage());
     }
 
+    @Test
+    void testCalculatePoints() {
+        // Testing amounts below the reward threshold
+        assertEquals(0, customerTranscationService.calculatePoints(49));
+
+        // Testing amounts between $50 and $100
+        assertEquals(1, customerTranscationService.calculatePoints(51));
+
+        // Testing amounts above $100
+        assertEquals(90, customerTranscationService.calculatePoints(120));
+
+        // Testing boundary conditions at exactly $100
+        assertEquals(50, customerTranscationService.calculatePoints(100));
+
+        // Testing zero amount
+        assertEquals(0, customerTranscationService.calculatePoints(0));
+
+        // Testing negative amount to ensure exception is thrown
+        CustomerTransactionException exception = assertThrows(
+            CustomerTransactionException.class,
+            () -> customerTranscationService.calculatePoints(-10)
+        );
+        assertEquals("Invalid transaction amount", exception.getMessage());
+    }
 
 }

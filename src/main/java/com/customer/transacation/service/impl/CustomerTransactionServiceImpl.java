@@ -117,7 +117,7 @@ public class CustomerTransactionServiceImpl implements CustomerTransactionServic
 	 * @param amount the transaction amount
 	 * @return the calculated reward points
 	 */
-	private int calculatePoints(double amount) {
+	public int calculatePoints(double amount) {
 		int points = 0;
 		if (amount < 0) {
             LOG.error("Invalid transaction amount: {}", amount);
